@@ -1,9 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application) // Android application plugin
-    alias(libs.plugins.kotlin.android)      // Kotlin Android support
-    alias(libs.plugins.kotlin.compose)      // Compose compiler plugin (Kotlin 2.x)
-    alias(libs.plugins.hilt.android)        // Hilt dependency injection plugin
-    kotlin("kapt")                          // Annotation processing (for Hilt)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -33,25 +32,37 @@ android {
     }
 }
 
-kapt {
-    correctErrorTypes = true                    // Fixes generated code type issues (Hilt)
-}
-
 dependencies {
 
-    implementation(platform(libs.androidx.compose.bom)) // Compose BOM for version management
+    // Compose BOM
+    implementation(platform(libs.androidx.compose.bom))
 
-    implementation(libs.androidx.core.ktx)              // Core Kotlin extensions
-    implementation(libs.androidx.lifecycle.runtime.ktx) // Lifecycle runtime support
-    implementation(libs.androidx.activity.compose)      // Activity integration with Compose
+    // Core Android
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
 
-    implementation(libs.androidx.compose.ui)            // Core Compose UI
-    implementation(libs.androidx.compose.ui.graphics)   // Compose graphics support
-    implementation(libs.androidx.compose.material3)     // Material 3 components
-    implementation(libs.androidx.compose.ui.tooling.preview) // Preview support
+    // Compose
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
 
-    debugImplementation(libs.androidx.compose.ui.tooling) // Debug UI tools
+    debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation(libs.hilt.android)                   // Hilt core library
-    kapt(libs.hilt.compiler)                            // Hilt annotation processor
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
 }

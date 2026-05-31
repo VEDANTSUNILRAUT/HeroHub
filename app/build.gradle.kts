@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.vedantraut.herohub" // Unique app ID
-        minSdk = 24                              // Minimum supported Android version
+        minSdk = 26                            // Minimum supported Android version
         targetSdk = 34                           // Target Android version
 
         versionCode = 1                          // App version code

@@ -47,6 +47,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation("com.google.android.material:material:1.12.0")
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 
@@ -65,4 +66,7 @@ dependencies {
     // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.compose)
+
+    //SplashScreen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }

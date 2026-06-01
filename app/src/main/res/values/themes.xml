@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.HeroHub" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.HeroHub" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">#0F1314</item>
+    </style>
+
+    <style name="Theme.HeroHub.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#0F1314</item>
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <item name="postSplashScreenTheme">@style/Theme.HeroHub</item>
+    </style>
+
 </resources>

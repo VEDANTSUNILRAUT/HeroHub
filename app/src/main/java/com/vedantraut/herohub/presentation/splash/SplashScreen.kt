@@ -6,12 +6,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import com.vedantraut.herohub.R
 import kotlinx.coroutines.delay
@@ -25,13 +25,13 @@ fun SplashScreen(
     val scale by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.7f,
         animationSpec = tween(1200),
-        label = ""
+        label = "SplashScale"
     )
 
     val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
         animationSpec = tween(1200),
-        label = ""
+        label = "SplashAlpha"
     )
 
     LaunchedEffect(Unit) {
@@ -41,10 +41,10 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.Black),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
-
     ) {
         Image(
             painter = painterResource(R.drawable.herohub_logo),

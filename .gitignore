@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# GitToolBox
+.idea/git_toolbox_prj.xml

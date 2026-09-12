@@ -4,8 +4,9 @@ import com.vedantraut.herohub.core.network.NetworkConstants
 import com.vedantraut.herohub.data.remote.api.HeroApi
 import com.vedantraut.herohub.data.repository.HeroRepositoryImpl
 import com.vedantraut.herohub.domain.repository.HeroRepository
+import com.vedantraut.herohub.domain.usecase.GetHomeHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.SearchHeroesUseCase
-import com.vedantraut.herohub.presentation.home.viewmodel.HomeViewModel
+import com.vedantraut.herohub.presentation.home.HomeViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -29,7 +30,14 @@ val appModule = module {
         SearchHeroesUseCase(get())
     }
 
+    single {
+        GetHomeHeroesUseCase(get())
+    }
+
     viewModel {
-        HomeViewModel(get())
+        HomeViewModel(
+            getHomeHeroesUseCase = get(),
+            searchHeroesUseCase = get()
+        )
     }
 }

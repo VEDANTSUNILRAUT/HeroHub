@@ -16,6 +16,9 @@ koin = "3.5.6"
 ksp = "2.0.0-1.0.24"
 navigationCompose = "2.8.9"
 
+# Coil
+coil = "2.6.0"
+
 [libraries]
 
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -44,8 +47,11 @@ room-compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 
-#Navigation
+# Navigation
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+# Coil
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 
 

@@ -7,15 +7,19 @@ plugins {
 
 android {
     namespace = "com.vedantraut.herohub"    // App package namespace
-    compileSdk = 34                         // Compile SDK version
+    compileSdk = 35                         // Compile SDK version (Android 15)
 
     defaultConfig {
         applicationId = "com.vedantraut.herohub" // Unique app ID
         minSdk = 26                            // Minimum supported Android version
-        targetSdk = 34                           // Target Android version
+        targetSdk = 35                           // Target Android version (Android 15)
 
         versionCode = 1                          // App version code
         versionName = "1.0"                      // App version name
+
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     compileOptions {
@@ -29,6 +33,12 @@ android {
 
     buildFeatures {
         compose = true                          // Enable Jetpack Compose
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -70,7 +80,10 @@ dependencies {
     //SplashScreen
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    //Navigation
+    // Navigation
     implementation(libs.androidx.navigation.compose)
+
+    // Coil
+    implementation(libs.coil.compose)
 
 }

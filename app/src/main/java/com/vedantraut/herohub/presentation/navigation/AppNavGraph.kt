@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import com.vedantraut.herohub.presentation.categories.CategoriesScreen
 import com.vedantraut.herohub.presentation.favorites.FavoritesScreen
 import com.vedantraut.herohub.presentation.home.HomeScreen
-import com.vedantraut.herohub.presentation.home.SettingsScreen
+import com.vedantraut.herohub.presentation.settings.SettingsScreen
 import com.vedantraut.herohub.presentation.search.SearchScreen
 
 import com.vedantraut.herohub.presentation.splash.SplashScreen

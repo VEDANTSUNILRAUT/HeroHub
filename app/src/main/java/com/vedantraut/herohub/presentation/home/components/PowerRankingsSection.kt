@@ -17,7 +17,9 @@ import com.vedantraut.herohub.ui.designsystem.token.HeroHubDimensions
 fun PowerRankingsSection(
     heroes: List<Hero>,
     onHeroClick: (Hero) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    favoriteHeroIds: Set<String> = emptySet(),
+    onToggleFavorite: ((String) -> Unit)? = null
 ) {
     if (heroes.isEmpty()) return
 
@@ -49,7 +51,9 @@ fun PowerRankingsSection(
                                 RankedHeroCard(
                                     rank = rank,
                                     hero = hero,
-                                    onClick = { onHeroClick(hero) }
+                                    onClick = { onHeroClick(hero) },
+                                    isFavorite = favoriteHeroIds.contains(hero.id),
+                                    onToggleFavorite = onToggleFavorite?.let { { it(hero.id) } }
                                 )
                             }
                         }
@@ -70,7 +74,9 @@ fun PowerRankingsSection(
                     RankedHeroCard(
                         rank = index + 1,
                         hero = hero,
-                        onClick = { onHeroClick(hero) }
+                        onClick = { onHeroClick(hero) },
+                        isFavorite = favoriteHeroIds.contains(hero.id),
+                        onToggleFavorite = onToggleFavorite?.let { { it(hero.id) } }
                     )
                 }
             }

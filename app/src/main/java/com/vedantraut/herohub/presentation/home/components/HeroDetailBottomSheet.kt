@@ -29,12 +29,21 @@ import com.vedantraut.herohub.domain.model.Hero
 import com.vedantraut.herohub.ui.designsystem.token.HeroHubDimensions
 import com.vedantraut.herohub.ui.designsystem.token.HeroHubRadius
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.unit.sp
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HeroDetailBottomSheet(
     hero: Hero,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -48,12 +57,30 @@ fun HeroDetailBottomSheet(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space16)
         ) {
-            HeroImage(
-                imageUrl = hero.imageUrl,
-                contentDescription = hero.name,
-                modifier = Modifier.size(105.dp),
-                shape = RoundedCornerShape(HeroHubRadius.large)
-            )
+            Box(modifier = Modifier.size(105.dp)) {
+                HeroImage(
+                    imageUrl = hero.imageUrl,
+                    contentDescription = hero.name,
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(HeroHubRadius.large)
+                )
+
+                if (onToggleFavorite != null) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(32.dp)
+                    ) {
+                        IconButton(onClick = onToggleFavorite) {
+                            Text(text = if (isFavorite) "❤️" else "🤍", fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
 
             Column(
                 modifier = Modifier.weight(1f),
@@ -80,6 +107,32 @@ fun HeroDetailBottomSheet(
                     PublisherTag(publisher = hero.publisher)
                     HeroAlignmentTag(alignment = hero.displayAlignment)
                 }
+            }
+        }
+
+        // Squad Favorite Button CTA
+        if (onToggleFavorite != null) {
+            Spacer(modifier = Modifier.height(HeroHubDimensions.space16))
+            Button(
+                onClick = onToggleFavorite,
+                shape = RoundedCornerShape(HeroHubRadius.large),
+                colors = if (isFavorite) {
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                } else {
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = if (isFavorite) "❤️ In Superhero Squad (Favorite)" else "🤍 Add to Superhero Squad",
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
 

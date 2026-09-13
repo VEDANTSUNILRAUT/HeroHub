@@ -17,7 +17,9 @@ import com.vedantraut.herohub.ui.designsystem.token.HeroHubDimensions
 fun RecentlyAddedSection(
     heroes: List<Hero>,
     onHeroClick: (Hero) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    favoriteHeroIds: Set<String> = emptySet(),
+    onToggleFavorite: ((String) -> Unit)? = null
 ) {
     if (heroes.isEmpty()) return
 
@@ -50,7 +52,9 @@ fun RecentlyAddedSection(
                         Box(modifier = Modifier.weight(1f)) {
                             HeroCard(
                                 hero = hero,
-                                onClick = { onHeroClick(hero) }
+                                onClick = { onHeroClick(hero) },
+                                isFavorite = favoriteHeroIds.contains(hero.id),
+                                onToggleFavorite = onToggleFavorite?.let { { it(hero.id) } }
                             )
                         }
                     }

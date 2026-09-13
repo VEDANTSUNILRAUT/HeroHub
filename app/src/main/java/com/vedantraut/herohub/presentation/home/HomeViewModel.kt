@@ -13,9 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+import com.vedantraut.herohub.domain.repository.FavoritesRepository
+
 class HomeViewModel(
     private val getHomeHeroesUseCase: GetHomeHeroesUseCase,
-    private val searchHeroesUseCase: SearchHeroesUseCase
+    private val searchHeroesUseCase: SearchHeroesUseCase,
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HomeState())
@@ -25,6 +28,15 @@ class HomeViewModel(
 
     init {
         loadHomeData()
+        observeFavorites()
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            favoritesRepository.getFavoriteHeroIds().collect { ids ->
+                _state.update { it.copy(favoriteHeroIds = ids) }
+            }
+        }
     }
 
     fun onIntent(intent: HomeIntent) {
@@ -33,6 +45,11 @@ class HomeViewModel(
             is HomeIntent.Retry -> loadHomeData()
             is HomeIntent.SearchHero -> handleSearch(intent.query)
             is HomeIntent.SelectCategory -> handleCategorySelection(intent.category)
+            is HomeIntent.ToggleFavorite -> {
+                viewModelScope.launch {
+                    favoritesRepository.toggleFavorite(intent.heroId)
+                }
+            }
             is HomeIntent.SelectHero -> {
                 _state.update { it.copy(selectedHeroForDetail = intent.hero) }
             }

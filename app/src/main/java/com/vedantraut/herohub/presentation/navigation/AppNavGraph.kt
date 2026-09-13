@@ -49,7 +49,13 @@ fun AppNavGraph(
         }
 
         composable(AppDestination.Favorites.route) {
-            FavoritesScreen()
+            FavoritesScreen(
+                onNavigateToExplore = {
+                    navController.navigate(AppDestination.Home.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable(AppDestination.Settings.route) {

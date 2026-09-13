@@ -40,7 +40,9 @@ import com.vedantraut.herohub.ui.designsystem.token.HeroHubRadius
 fun HeroCard(
     hero: Hero,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     Card(
         modifier = modifier
@@ -64,7 +66,7 @@ fun HeroCard(
                     shape = RoundedCornerShape(topStart = HeroHubRadius.extraLarge, topEnd = HeroHubRadius.extraLarge)
                 )
 
-                // Top Floating Alignment & Power Badges
+                // Top Floating Alignment & Power / Favorite Badges
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -74,18 +76,41 @@ fun HeroCard(
                 ) {
                     HeroAlignmentTag(alignment = hero.displayAlignment)
 
-                    Surface(
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
                     ) {
-                        Text(
-                            text = "${hero.powerRating}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(horizontal = HeroHubDimensions.space8, vertical = HeroHubDimensions.space2)
-                        )
+                        if (onToggleFavorite != null) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)),
+                                modifier = Modifier.size(28.dp)
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable(onClick = onToggleFavorite)
+                                ) {
+                                    Text(text = if (isFavorite) "❤️" else "🤍", fontSize = 13.sp)
+                                }
+                            }
+                        }
+
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                        ) {
+                            Text(
+                                text = "${hero.powerRating}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(horizontal = HeroHubDimensions.space8, vertical = HeroHubDimensions.space2)
+                            )
+                        }
                     }
                 }
             }
@@ -144,7 +169,9 @@ fun HeroCard(
 fun CompactHeroCard(
     hero: Hero,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     Card(
         modifier = modifier
@@ -167,6 +194,26 @@ fun CompactHeroCard(
                     modifier = Modifier.fillMaxSize(),
                     shape = RoundedCornerShape(topStart = HeroHubRadius.large, topEnd = HeroHubRadius.large)
                 )
+
+                if (onToggleFavorite != null) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .padding(4.dp)
+                            .size(28.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable(onClick = onToggleFavorite)
+                        ) {
+                            Text(text = if (isFavorite) "❤️" else "🤍", fontSize = 12.sp)
+                        }
+                    }
+                }
 
                 Surface(
                     shape = RoundedCornerShape(bottomStart = HeroHubRadius.medium),
@@ -213,7 +260,9 @@ fun RankedHeroCard(
     rank: Int,
     hero: Hero,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFavorite: Boolean = false,
+    onToggleFavorite: (() -> Unit)? = null
 ) {
     Card(
         modifier = modifier
@@ -279,12 +328,34 @@ fun RankedHeroCard(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
             ) {
-                Text(
-                    text = "⚡ ${hero.powerRating}",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
+                ) {
+                    Text(
+                        text = "⚡ ${hero.powerRating}",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+
+                    if (onToggleFavorite != null) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable(onClick = onToggleFavorite)
+                            ) {
+                                Text(text = if (isFavorite) "❤️" else "🤍", fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
                 HeroAlignmentTag(alignment = hero.displayAlignment)
             }
         }

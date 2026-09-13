@@ -13,6 +13,7 @@ data class HomeState(
     val categories: List<String> = listOf("All", "Marvel", "DC Comics", "Heroes", "Villains"),
     val selectedCategory: String = "All",
     val searchQuery: String = "",
+    val favoriteHeroIds: Set<String> = emptySet(),
     val selectedHeroForDetail: Hero? = null,
     val error: String? = null
 )

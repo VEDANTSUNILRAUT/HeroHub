@@ -109,7 +109,9 @@ fun HomeScreen(
                         HeroDetailBottomSheet(
                             hero = hero,
                             onClose = { viewModel.onIntent(HomeIntent.DismissHeroDetail) },
-                            modifier = Modifier.widthIn(max = 680.dp)
+                            modifier = Modifier.widthIn(max = 680.dp),
+                            isFavorite = state.favoriteHeroIds.contains(hero.id),
+                            onToggleFavorite = { viewModel.onIntent(HomeIntent.ToggleFavorite(hero.id)) }
                         )
                     }
                 }
@@ -186,7 +188,9 @@ private fun HomeContent(
                                         Box(modifier = Modifier.weight(1f)) {
                                             HeroCard(
                                                 hero = hero,
-                                                onClick = { onIntent(HomeIntent.SelectHero(hero)) }
+                                                onClick = { onIntent(HomeIntent.SelectHero(hero)) },
+                                                isFavorite = state.favoriteHeroIds.contains(hero.id),
+                                                onToggleFavorite = { onIntent(HomeIntent.ToggleFavorite(hero.id)) }
                                             )
                                         }
                                     }
@@ -216,7 +220,9 @@ private fun HomeContent(
             item {
                 PopularHeroesSection(
                     heroes = state.popularHeroes,
-                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) }
+                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) },
+                    favoriteHeroIds = state.favoriteHeroIds,
+                    onToggleFavorite = { onIntent(HomeIntent.ToggleFavorite(it)) }
                 )
             }
 
@@ -224,7 +230,9 @@ private fun HomeContent(
             item {
                 PowerRankingsSection(
                     heroes = state.powerRankedHeroes,
-                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) }
+                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) },
+                    favoriteHeroIds = state.favoriteHeroIds,
+                    onToggleFavorite = { onIntent(HomeIntent.ToggleFavorite(it)) }
                 )
             }
 
@@ -232,7 +240,9 @@ private fun HomeContent(
             item {
                 RecentlyAddedSection(
                     heroes = state.recentlyAddedHeroes,
-                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) }
+                    onHeroClick = { onIntent(HomeIntent.SelectHero(it)) },
+                    favoriteHeroIds = state.favoriteHeroIds,
+                    onToggleFavorite = { onIntent(HomeIntent.ToggleFavorite(it)) }
                 )
             }
         }

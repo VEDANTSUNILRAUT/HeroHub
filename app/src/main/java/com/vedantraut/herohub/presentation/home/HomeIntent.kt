@@ -7,6 +7,7 @@ sealed interface HomeIntent {
     data class SearchHero(val query: String) : HomeIntent
     data class SelectCategory(val category: String) : HomeIntent
     data class SelectHero(val hero: Hero) : HomeIntent
+    data class ToggleFavorite(val heroId: String) : HomeIntent
     data object DismissHeroDetail : HomeIntent
     data object Retry : HomeIntent
 }

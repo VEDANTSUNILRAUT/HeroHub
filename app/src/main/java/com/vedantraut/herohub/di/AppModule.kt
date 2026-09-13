@@ -8,6 +8,7 @@ import com.vedantraut.herohub.domain.repository.FavoritesRepository
 import com.vedantraut.herohub.domain.repository.HeroRepository
 import com.vedantraut.herohub.domain.usecase.GetHomeHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.SearchHeroesUseCase
+import com.vedantraut.herohub.presentation.categories.CategoriesViewModel
 import com.vedantraut.herohub.presentation.favorites.FavoritesViewModel
 import com.vedantraut.herohub.presentation.home.HomeViewModel
 import org.koin.android.ext.koin.androidContext
@@ -46,6 +47,13 @@ val appModule = module {
         HomeViewModel(
             getHomeHeroesUseCase = get(),
             searchHeroesUseCase = get(),
+            favoritesRepository = get()
+        )
+    }
+
+    viewModel {
+        CategoriesViewModel(
+            getHomeHeroesUseCase = get(),
             favoritesRepository = get()
         )
     }

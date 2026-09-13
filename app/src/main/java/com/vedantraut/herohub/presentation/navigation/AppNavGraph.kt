@@ -41,7 +41,13 @@ fun AppNavGraph(
         }
 
         composable(AppDestination.Categories.route) {
-            CategoriesScreen()
+            CategoriesScreen(
+                onNavigateToSearch = {
+                    navController.navigate(AppDestination.Search.route) {
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable(AppDestination.Search.route) {

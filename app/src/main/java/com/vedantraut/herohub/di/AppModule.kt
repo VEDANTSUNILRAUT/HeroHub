@@ -11,6 +11,7 @@ import com.vedantraut.herohub.domain.usecase.SearchHeroesUseCase
 import com.vedantraut.herohub.presentation.categories.CategoriesViewModel
 import com.vedantraut.herohub.presentation.favorites.FavoritesViewModel
 import com.vedantraut.herohub.presentation.home.HomeViewModel
+import com.vedantraut.herohub.presentation.search.SearchViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -53,6 +54,14 @@ val appModule = module {
 
     viewModel {
         CategoriesViewModel(
+            getHomeHeroesUseCase = get(),
+            favoritesRepository = get()
+        )
+    }
+
+    viewModel {
+        SearchViewModel(
+            searchHeroesUseCase = get(),
             getHomeHeroesUseCase = get(),
             favoritesRepository = get()
         )

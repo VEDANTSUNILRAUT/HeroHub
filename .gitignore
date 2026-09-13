@@ -10,4 +10,5 @@ local.properties
 
 # Android Studio / IntelliJ IDEA
 .idea/
+.kotlin/
 

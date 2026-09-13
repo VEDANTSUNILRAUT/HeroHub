@@ -86,4 +86,7 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
+    // Unit Testing
+    testImplementation(libs.junit)
+
 }

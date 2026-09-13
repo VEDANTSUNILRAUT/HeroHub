@@ -4,14 +4,17 @@ import com.vedantraut.herohub.core.network.NetworkConstants
 import com.vedantraut.herohub.data.remote.api.HeroApi
 import com.vedantraut.herohub.data.repository.FavoritesRepositoryImpl
 import com.vedantraut.herohub.data.repository.HeroRepositoryImpl
+import com.vedantraut.herohub.data.repository.SettingsRepositoryImpl
 import com.vedantraut.herohub.domain.repository.FavoritesRepository
 import com.vedantraut.herohub.domain.repository.HeroRepository
+import com.vedantraut.herohub.domain.repository.SettingsRepository
 import com.vedantraut.herohub.domain.usecase.GetHomeHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.SearchHeroesUseCase
 import com.vedantraut.herohub.presentation.categories.CategoriesViewModel
 import com.vedantraut.herohub.presentation.favorites.FavoritesViewModel
 import com.vedantraut.herohub.presentation.home.HomeViewModel
 import com.vedantraut.herohub.presentation.search.SearchViewModel
+import com.vedantraut.herohub.presentation.settings.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -34,6 +37,10 @@ val appModule = module {
 
     single<FavoritesRepository> {
         FavoritesRepositoryImpl(androidContext())
+    }
+
+    single<SettingsRepository> {
+        SettingsRepositoryImpl(androidContext())
     }
 
     single {
@@ -71,6 +78,12 @@ val appModule = module {
         FavoritesViewModel(
             favoritesRepository = get(),
             getHomeHeroesUseCase = get()
+        )
+    }
+
+    viewModel {
+        SettingsViewModel(
+            settingsRepository = get()
         )
     }
 }

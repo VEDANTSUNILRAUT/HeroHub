@@ -39,19 +39,22 @@ class HeroHubApp : Application(), ImageLoaderFactory {
 
         return ImageLoader.Builder(this)
             .okHttpClient(okHttpClient)
+            .allowHardware(true)
+            .allowRgb565(true)
             .memoryCache {
                 MemoryCache.Builder(this)
-                    .maxSizePercent(0.25)
+                    .maxSizePercent(0.30)
+                    .strongReferencesEnabled(true)
                     .build()
             }
             .diskCache {
                 DiskCache.Builder()
                     .directory(cacheDir.resolve("image_cache"))
-                    .maxSizeBytes(50L * 1024 * 1024)
+                    .maxSizeBytes(120L * 1024 * 1024)
                     .build()
             }
             .respectCacheHeaders(false)
-            .crossfade(true)
+            .crossfade(250)
             .build()
     }
 }

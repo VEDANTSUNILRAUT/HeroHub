@@ -8,6 +8,7 @@ import com.vedantraut.herohub.data.repository.SettingsRepositoryImpl
 import com.vedantraut.herohub.domain.repository.FavoritesRepository
 import com.vedantraut.herohub.domain.repository.HeroRepository
 import com.vedantraut.herohub.domain.repository.SettingsRepository
+import com.vedantraut.herohub.domain.usecase.GetAllHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.GetHomeHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.SearchHeroesUseCase
 import com.vedantraut.herohub.presentation.categories.CategoriesViewModel
@@ -15,9 +16,14 @@ import com.vedantraut.herohub.presentation.favorites.FavoritesViewModel
 import com.vedantraut.herohub.presentation.home.HomeViewModel
 import com.vedantraut.herohub.presentation.search.SearchViewModel
 import com.vedantraut.herohub.presentation.settings.SettingsViewModel
+import com.vedantraut.herohub.domain.battle.BattleEngine
+import com.vedantraut.herohub.domain.usecase.SimulateBattleUseCase
+import com.vedantraut.herohub.presentation.battle.BattleViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import androidx.room.Room
+import com.vedantraut.herohub.data.local.database.HeroDatabase
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -31,8 +37,22 @@ val appModule = module {
             .create(HeroApi::class.java)
     }
 
+    single {
+        Room.databaseBuilder(
+            androidContext(),
+            HeroDatabase::class.java,
+            "herohub.db"
+        )
+        .fallbackToDestructiveMigration()
+        .build()
+    }
+
+    single {
+        get<HeroDatabase>().heroDao()
+    }
+
     single<HeroRepository> {
-        HeroRepositoryImpl(get())
+        HeroRepositoryImpl(api = get(), heroDao = get())
     }
 
     single<FavoritesRepository> {
@@ -51,6 +71,18 @@ val appModule = module {
         GetHomeHeroesUseCase(get())
     }
 
+    single {
+        GetAllHeroesUseCase(get())
+    }
+
+    single {
+        BattleEngine()
+    }
+
+    single {
+        SimulateBattleUseCase(get())
+    }
+
     viewModel {
         HomeViewModel(
             getHomeHeroesUseCase = get(),
@@ -60,8 +92,16 @@ val appModule = module {
     }
 
     viewModel {
+        BattleViewModel(
+            getHomeHeroesUseCase = get(),
+            simulateBattleUseCase = get()
+        )
+    }
+
+    viewModel {
         CategoriesViewModel(
             getHomeHeroesUseCase = get(),
+            getAllHeroesUseCase = get(),
             favoritesRepository = get()
         )
     }

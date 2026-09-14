@@ -19,6 +19,7 @@ fun HeroHubRoot() {
 
     val showBars = currentRoute in listOf(
         AppDestination.Home.route,
+        AppDestination.Battle.route,
         AppDestination.Categories.route,
         AppDestination.Search.route,
         AppDestination.Favorites.route,

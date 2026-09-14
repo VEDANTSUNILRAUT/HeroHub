@@ -1,6 +1,7 @@
 package com.vedantraut.herohub.presentation.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
@@ -19,6 +20,11 @@ val bottomNavItems = listOf(
         title = "Home",
         route = AppDestination.Home.route,
         icon = Icons.Outlined.Home
+    ),
+    BottomNavItem(
+        title = "Versus",
+        route = AppDestination.Battle.route,
+        icon = Icons.Default.Refresh
     ),
     BottomNavItem(
         title = "Categories",

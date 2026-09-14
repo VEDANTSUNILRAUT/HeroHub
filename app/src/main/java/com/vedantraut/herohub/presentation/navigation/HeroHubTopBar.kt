@@ -15,6 +15,7 @@ fun HeroHubTopBar(
 ) {
     val title = when (currentRoute) {
         AppDestination.Home.route -> "HeroHub"
+        AppDestination.Battle.route -> "Versus Arena"
         AppDestination.Categories.route -> "Categories"
         AppDestination.Search.route -> "Search"
         AppDestination.Favorites.route -> "Favorites"

@@ -1,7 +1,9 @@
 package com.vedantraut.herohub.presentation.favorites
 
+import androidx.compose.runtime.Immutable
 import com.vedantraut.herohub.domain.model.Hero
 
+@Immutable
 data class FavoritesState(
     val isLoading: Boolean = true,
     val favoriteHeroIds: Set<String> = emptySet(),

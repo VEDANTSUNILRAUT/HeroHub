@@ -12,5 +12,7 @@ sealed class AppDestination(val route: String) {
 
     data object Favorites : AppDestination("favorites")
 
+    data object Battle : AppDestination("battle")
+
     data object Settings : AppDestination("settings")
 }

@@ -1,5 +1,8 @@
 package com.vedantraut.herohub.domain.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Hero(
     val id: String,
     val name: String,

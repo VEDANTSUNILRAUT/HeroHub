@@ -1,7 +1,9 @@
 package com.vedantraut.herohub.presentation.search
 
+import androidx.compose.runtime.Immutable
 import com.vedantraut.herohub.domain.model.Hero
 
+@Immutable
 data class SearchState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,

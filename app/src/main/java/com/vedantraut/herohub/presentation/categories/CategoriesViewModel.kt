@@ -3,21 +3,28 @@ package com.vedantraut.herohub.presentation.categories
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vedantraut.herohub.domain.model.Hero
+import com.vedantraut.herohub.domain.usecase.GetAllHeroesUseCase
 import com.vedantraut.herohub.domain.usecase.GetHomeHeroesUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.vedantraut.herohub.domain.repository.FavoritesRepository
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CategoriesViewModel(
     private val getHomeHeroesUseCase: GetHomeHeroesUseCase,
+    private val getAllHeroesUseCase: GetAllHeroesUseCase,
     private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CategoriesState())
     val state: StateFlow<CategoriesState> = _state.asStateFlow()
+
+    private var filterJob: Job? = null
 
     init {
         loadData()
@@ -50,10 +57,8 @@ class CategoriesViewModel(
                 _state.update { it.copy(viewMode = intent.viewMode) }
             }
             is CategoriesIntent.SetSortOrder -> {
-                _state.update { current ->
-                    val sorted = sortHeroes(current.categoryHeroes, intent.sortOrder)
-                    current.copy(sortOrder = intent.sortOrder, categoryHeroes = sorted)
-                }
+                _state.update { it.copy(sortOrder = intent.sortOrder) }
+                recalculateCategoryHeroes()
             }
             is CategoriesIntent.SearchWithinCategory -> {
                 _state.update { current ->
@@ -75,6 +80,7 @@ class CategoriesViewModel(
             is CategoriesIntent.DismissHeroDetail -> {
                 _state.update { it.copy(selectedHeroForDetail = null) }
             }
+            is CategoriesIntent.LoadMoreHeroes -> handleLoadMoreHeroes()
         }
     }
 
@@ -82,7 +88,7 @@ class CategoriesViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             try {
-                val heroes = getHomeHeroesUseCase()
+                val heroes = getAllHeroesUseCase()
                 val topHeroes = heroes.take(6)
                 _state.update { current ->
                     current.copy(
@@ -126,28 +132,67 @@ class CategoriesViewModel(
     private fun recalculateCategoryHeroes() {
         val current = _state.value
         val category = current.selectedCategory ?: return
+        val allHeroes = current.allHeroes
+        val subcategory = current.selectedSubcategory
+        val query = current.searchFilterText
+        val sortOrder = current.sortOrder
 
-        var filtered = filterHeroesByCategory(current.allHeroes, category)
+        filterJob?.cancel()
+        filterJob = viewModelScope.launch(Dispatchers.Default) {
+            var filtered = filterHeroesByCategory(allHeroes, category)
 
-        current.selectedSubcategory?.let { sub ->
-            filtered = filterHeroesBySubcategory(filtered, sub)
-        }
+            subcategory?.let { sub ->
+                filtered = filterHeroesBySubcategory(filtered, sub)
+            }
 
-        if (current.searchFilterText.isNotBlank()) {
-            val q = current.searchFilterText.trim()
-            filtered = filtered.filter {
-                it.name.contains(q, ignoreCase = true) ||
-                        it.realName.contains(q, ignoreCase = true) ||
-                        it.publisher.contains(q, ignoreCase = true)
+            if (query.isNotBlank()) {
+                val q = query.trim()
+                filtered = filtered.filter {
+                    it.name.contains(q, ignoreCase = true) ||
+                            it.realName.contains(q, ignoreCase = true) ||
+                            it.publisher.contains(q, ignoreCase = true)
+                }
+            }
+
+            val sorted = sortHeroes(filtered, sortOrder)
+            val initialBatch = sorted.take(PAGE_SIZE)
+            withContext(Dispatchers.Main) {
+                _state.update {
+                    it.copy(
+                        fullCategoryHeroes = sorted,
+                        categoryHeroes = initialBatch,
+                        totalCategoryHeroesCount = sorted.size,
+                        hasMoreHeroes = sorted.size > initialBatch.size,
+                        isLoadingMore = false
+                    )
+                }
             }
         }
+    }
 
-        val sorted = sortHeroes(filtered, current.sortOrder)
-        _state.update { it.copy(categoryHeroes = sorted) }
+    private fun handleLoadMoreHeroes() {
+        val current = _state.value
+        if (current.isLoadingMore || !current.hasMoreHeroes) return
+
+        _state.update { it.copy(isLoadingMore = true) }
+        viewModelScope.launch(Dispatchers.Default) {
+            val nextCount = current.categoryHeroes.size + PAGE_SIZE
+            val nextBatch = current.fullCategoryHeroes.take(nextCount)
+            withContext(Dispatchers.Main) {
+                _state.update {
+                    it.copy(
+                        categoryHeroes = nextBatch,
+                        hasMoreHeroes = current.fullCategoryHeroes.size > nextBatch.size,
+                        isLoadingMore = false
+                    )
+                }
+            }
+        }
     }
 
     private fun filterHeroesByCategory(heroes: List<Hero>, category: CategoryItem): List<Hero> {
         return when (category.id) {
+            "all_heroes_global" -> heroes
             "marvel" -> heroes.filter { it.publisher.contains("Marvel", ignoreCase = true) }
             "dc" -> heroes.filter { it.publisher.contains("DC", ignoreCase = true) }
             "indie" -> heroes.filter {
@@ -187,6 +232,12 @@ class CategoriesViewModel(
 
     private fun filterHeroesBySubcategory(heroes: List<Hero>, subcategory: SubcategoryItem): List<Hero> {
         return when (subcategory.id) {
+            "all_all" -> heroes
+            "all_marvel" -> heroes.filter { it.publisher.contains("Marvel", ignoreCase = true) }
+            "all_dc" -> heroes.filter { it.publisher.contains("DC", ignoreCase = true) }
+            "all_indie" -> heroes.filter { !it.publisher.contains("Marvel", ignoreCase = true) && !it.publisher.contains("DC", ignoreCase = true) }
+            "all_heroes" -> heroes.filter { it.isGood }
+            "all_villains" -> heroes.filter { it.isBad }
             "avengers" -> heroes.filter { it.groupAffiliation.contains("Avengers", ignoreCase = true) }
             "xmen" -> heroes.filter { it.groupAffiliation.contains("X-Men", ignoreCase = true) || it.race.contains("Mutant", ignoreCase = true) }
             "illuminati" -> heroes.filter { it.groupAffiliation.contains("Illuminati", ignoreCase = true) || it.name.contains("Iron Man", ignoreCase = true) || it.name.contains("Doctor Strange", ignoreCase = true) }
@@ -214,5 +265,9 @@ class CategoriesViewModel(
             CategorySortOrder.NAME_ASC -> heroes.sortedBy { it.name.lowercase() }
             CategorySortOrder.NAME_DESC -> heroes.sortedByDescending { it.name.lowercase() }
         }
+    }
+
+    companion object {
+        const val PAGE_SIZE = 36
     }
 }

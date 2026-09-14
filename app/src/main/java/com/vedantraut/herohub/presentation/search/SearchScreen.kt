@@ -522,41 +522,41 @@ private fun SearchScreenContent(
                 }
             } else {
                 if (state.viewMode == SearchViewMode.GRID) {
-                    item {
-                        val chunked = state.searchResults.chunked(gridColumns)
-                        Column(
+                    val chunked = state.searchResults.chunked(gridColumns)
+                    items(
+                        items = chunked,
+                        key = { row -> row.joinToString("-") { it.id } }
+                    ) { rowItems ->
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = HeroHubDimensions.screenHorizontalPadding),
-                            verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
+                            horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
                         ) {
-                            for (rowItems in chunked) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
-                                ) {
-                                    for (hero in rowItems) {
-                                        Box(modifier = Modifier.weight(1f)) {
-                                            HeroCard(
-                                                hero = hero,
-                                                onClick = { onIntent(SearchIntent.SelectHero(hero)) },
-                                                isFavorite = state.favoriteHeroIds.contains(hero.id),
-                                                onToggleFavorite = { onIntent(SearchIntent.ToggleFavorite(hero.id)) }
-                                            )
-                                        }
-                                    }
-                                    if (rowItems.size < gridColumns) {
-                                        repeat(gridColumns - rowItems.size) {
-                                            Spacer(modifier = Modifier.weight(1f))
-                                        }
-                                    }
+                            for (hero in rowItems) {
+                                Box(modifier = Modifier.weight(1f)) {
+                                    HeroCard(
+                                        hero = hero,
+                                        onClick = { onIntent(SearchIntent.SelectHero(hero)) },
+                                        isFavorite = state.favoriteHeroIds.contains(hero.id),
+                                        onToggleFavorite = { onIntent(SearchIntent.ToggleFavorite(hero.id)) }
+                                    )
+                                }
+                            }
+                            if (rowItems.size < gridColumns) {
+                                repeat(gridColumns - rowItems.size) {
+                                    Spacer(modifier = Modifier.weight(1f))
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
                     }
                 } else {
                     // Ranked List Mode
-                    items(state.searchResults) { hero ->
+                    items(
+                        items = state.searchResults,
+                        key = { it.id }
+                    ) { hero ->
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -570,6 +570,7 @@ private fun SearchScreenContent(
                                 onToggleFavorite = { onIntent(SearchIntent.ToggleFavorite(hero.id)) }
                             )
                         }
+                        Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
                     }
                 }
             }

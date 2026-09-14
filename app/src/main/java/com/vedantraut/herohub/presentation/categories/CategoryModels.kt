@@ -1,18 +1,23 @@
 package com.vedantraut.herohub.presentation.categories
 
+import androidx.compose.runtime.Immutable
+
 enum class CategoryGroup(val displayName: String) {
+    ALL("All Heroes (700+)"),
     PUBLISHERS("Universes & Publishers"),
     ALIGNMENTS("Alignments & Roles"),
     POWER_CLASSES("Power Classes"),
     ORIGIN("Origins & Species")
 }
 
+@Immutable
 data class SubcategoryItem(
     val id: String,
     val title: String,
     val tag: String
 )
 
+@Immutable
 data class CategoryItem(
     val id: String,
     val title: String,
@@ -37,6 +42,24 @@ enum class CategoryViewMode {
 
 object CategoryPresets {
     val defaultCategories = listOf(
+        // Group 0: Complete Global Registry
+        CategoryItem(
+            id = "all_heroes_global",
+            title = "All Heroes & Villains (700+)",
+            description = "Explore the complete global registry of 700+ characters extracted live from the API database",
+            bannerImageUrl = "https://fastly.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/images/lg/644-superman.jpg",
+            group = CategoryGroup.ALL,
+            estimatedHeroCount = 731,
+            subcategories = listOf(
+                SubcategoryItem("all_all", "All 700+", "all"),
+                SubcategoryItem("all_marvel", "Marvel (280+)", "Marvel"),
+                SubcategoryItem("all_dc", "DC Comics (220+)", "DC"),
+                SubcategoryItem("all_indie", "Indie & Others (100+)", "Indie"),
+                SubcategoryItem("all_heroes", "Superheroes", "good"),
+                SubcategoryItem("all_villains", "Villains", "bad")
+            )
+        ),
+
         // Group 1: Publishers & Universes
         CategoryItem(
             id = "marvel",

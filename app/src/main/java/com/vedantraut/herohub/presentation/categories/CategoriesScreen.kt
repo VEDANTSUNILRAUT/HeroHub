@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +50,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -285,35 +288,32 @@ private fun CategoriesOverviewContent(
         }
 
         // 4. Category Cards Grid
-        item {
-            val chunked = filteredCategories.chunked(gridColumns)
-            Column(
+        val chunkedCategories = filteredCategories.chunked(gridColumns)
+        items(
+            items = chunkedCategories,
+            key = { row -> row.joinToString("-") { it.id } }
+        ) { rowItems ->
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = HeroHubDimensions.screenHorizontalPadding),
-                verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space16)
+                horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space16)
             ) {
-                for (rowItems in chunked) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space16)
-                    ) {
-                        for (category in rowItems) {
-                            Box(modifier = Modifier.weight(1f)) {
-                                CategoryVisualCard(
-                                    category = category,
-                                    onClick = { onIntent(CategoriesIntent.SelectCategory(category)) }
-                                )
-                            }
-                        }
-                        if (rowItems.size < gridColumns) {
-                            repeat(gridColumns - rowItems.size) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
+                for (category in rowItems) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        CategoryVisualCard(
+                            category = category,
+                            onClick = { onIntent(CategoriesIntent.SelectCategory(category)) }
+                        )
+                    }
+                }
+                if (rowItems.size < gridColumns) {
+                    repeat(gridColumns - rowItems.size) {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(HeroHubDimensions.space16))
         }
     }
 }
@@ -509,8 +509,14 @@ private fun CategoryDrillDownContent(
     }
 
     var sortMenuExpanded by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(category.id, state.selectedSubcategory?.id, state.searchFilterText) {
+        listState.scrollToItem(0)
+    }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = HeroHubDimensions.space32),
         verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space16)
@@ -550,8 +556,13 @@ private fun CategoryDrillDownContent(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+                        val countLabel = if (state.categoryHeroes.size < state.totalCategoryHeroesCount) {
+                            "Showing ${state.categoryHeroes.size} of ${state.totalCategoryHeroesCount} characters"
+                        } else {
+                            "${state.totalCategoryHeroesCount} characters found"
+                        }
                         Text(
-                            text = "${state.categoryHeroes.size} characters found",
+                            text = countLabel,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -711,41 +722,41 @@ private fun CategoryDrillDownContent(
             }
         } else {
             if (state.viewMode == CategoryViewMode.GRID) {
-                item {
-                    val chunked = state.categoryHeroes.chunked(gridColumns)
-                    Column(
+                val chunked = state.categoryHeroes.chunked(gridColumns)
+                items(
+                    items = chunked,
+                    key = { row -> row.joinToString("-") { it.id } }
+                ) { rowItems ->
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = HeroHubDimensions.screenHorizontalPadding),
-                        verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
+                        horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
                     ) {
-                        for (rowItems in chunked) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
-                            ) {
-                                for (hero in rowItems) {
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        HeroCard(
-                                            hero = hero,
-                                            onClick = { onIntent(CategoriesIntent.SelectHero(hero)) },
-                                            isFavorite = state.favoriteHeroIds.contains(hero.id),
-                                            onToggleFavorite = { onIntent(CategoriesIntent.ToggleFavorite(hero.id)) }
-                                        )
-                                    }
-                                }
-                                if (rowItems.size < gridColumns) {
-                                    repeat(gridColumns - rowItems.size) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
+                        for (hero in rowItems) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                HeroCard(
+                                    hero = hero,
+                                    onClick = { onIntent(CategoriesIntent.SelectHero(hero)) },
+                                    isFavorite = state.favoriteHeroIds.contains(hero.id),
+                                    onToggleFavorite = { onIntent(CategoriesIntent.ToggleFavorite(hero.id)) }
+                                )
+                            }
+                        }
+                        if (rowItems.size < gridColumns) {
+                            repeat(gridColumns - rowItems.size) {
+                                Spacer(modifier = Modifier.weight(1f))
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
                 }
             } else {
                 // List Mode
-                items(state.categoryHeroes) { hero ->
+                items(
+                    items = state.categoryHeroes,
+                    key = { it.id }
+                ) { hero ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -757,6 +768,54 @@ private fun CategoryDrillDownContent(
                             onClick = { onIntent(CategoriesIntent.SelectHero(hero)) },
                             isFavorite = state.favoriteHeroIds.contains(hero.id),
                             onToggleFavorite = { onIntent(CategoriesIntent.ToggleFavorite(hero.id)) }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
+                }
+            }
+
+            // Pagination Footer: Automatically loads next batch when user scrolls to bottom
+            if (state.hasMoreHeroes) {
+                item(key = "pagination_loading_footer") {
+                    LaunchedEffect(state.categoryHeroes.size) {
+                        onIntent(CategoriesIntent.LoadMoreHeroes)
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = HeroHubDimensions.space16),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space8)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "Loading next batch (${state.categoryHeroes.size} of ${state.totalCategoryHeroesCount})...",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            } else if (state.categoryHeroes.isNotEmpty() && state.totalCategoryHeroesCount > 36) {
+                item(key = "pagination_completed_footer") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = HeroHubDimensions.space16),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "✓ All ${state.totalCategoryHeroesCount} heroes loaded",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
                     }
                 }

@@ -13,5 +13,6 @@ sealed interface CategoriesIntent {
     data class SelectHero(val hero: Hero) : CategoriesIntent
     data class ToggleFavorite(val heroId: String) : CategoriesIntent
     data object DismissHeroDetail : CategoriesIntent
+    data object LoadMoreHeroes : CategoriesIntent
     data object Retry : CategoriesIntent
 }

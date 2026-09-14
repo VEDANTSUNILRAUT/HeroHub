@@ -561,40 +561,40 @@ private fun FavoritesContent(
         } else {
             // Roster Display: Grid or List
             if (state.viewMode == FavoritesViewMode.GRID) {
-                item {
-                    val chunked = state.filteredHeroes.chunked(gridColumns)
-                    Column(
+                val chunked = state.filteredHeroes.chunked(gridColumns)
+                items(
+                    items = chunked,
+                    key = { row -> row.joinToString("-") { it.id } }
+                ) { rowItems ->
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = HeroHubDimensions.screenHorizontalPadding),
-                        verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
+                        horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
                     ) {
-                        for (rowItems in chunked) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
-                            ) {
-                                for (hero in rowItems) {
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        FavoriteHeroGridCard(
-                                            hero = hero,
-                                            onClick = { onIntent(FavoritesIntent.SelectHero(hero)) },
-                                            onRemove = { onIntent(FavoritesIntent.RemoveFavorite(hero.id)) }
-                                        )
-                                    }
-                                }
-                                if (rowItems.size < gridColumns) {
-                                    repeat(gridColumns - rowItems.size) {
-                                        Spacer(modifier = Modifier.weight(1f))
-                                    }
-                                }
+                        for (hero in rowItems) {
+                            Box(modifier = Modifier.weight(1f)) {
+                                FavoriteHeroGridCard(
+                                    hero = hero,
+                                    onClick = { onIntent(FavoritesIntent.SelectHero(hero)) },
+                                    onRemove = { onIntent(FavoritesIntent.RemoveFavorite(hero.id)) }
+                                )
+                            }
+                        }
+                        if (rowItems.size < gridColumns) {
+                            repeat(gridColumns - rowItems.size) {
+                                Spacer(modifier = Modifier.weight(1f))
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
                 }
             } else {
                 // List Mode
-                items(state.filteredHeroes) { hero ->
+                items(
+                    items = state.filteredHeroes,
+                    key = { it.id }
+                ) { hero ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -606,6 +606,7 @@ private fun FavoritesContent(
                             onRemove = { onIntent(FavoritesIntent.RemoveFavorite(hero.id)) }
                         )
                     }
+                    Spacer(modifier = Modifier.height(HeroHubDimensions.space12))
                 }
             }
         }

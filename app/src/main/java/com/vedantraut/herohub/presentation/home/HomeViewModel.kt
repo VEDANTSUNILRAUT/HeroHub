@@ -70,6 +70,19 @@ class HomeViewModel(
                 val recentlyAdded = heroes.reversed().take(6)
                 val filtered = applyFilter(heroes, _state.value.searchQuery, _state.value.selectedCategory)
 
+                // Select iconic rivals for the "Clash of the Day" showcase
+                val fighter1 = heroes.find { it.name.equals("Superman", ignoreCase = true) }
+                    ?: heroes.find { it.name.equals("Omni-Man", ignoreCase = true) }
+                    ?: powerRanked.firstOrNull()
+
+                val fighter2 = heroes.find { it.name.equals("Thor", ignoreCase = true) }
+                    ?: heroes.find { it.name.equals("Homelander", ignoreCase = true) }
+                    ?: powerRanked.getOrNull(1)
+
+                val clash = if (fighter1 != null && fighter2 != null && fighter1.id != fighter2.id) {
+                    fighter1 to fighter2
+                } else null
+
                 _state.update {
                     it.copy(
                         isLoading = false,
@@ -79,6 +92,7 @@ class HomeViewModel(
                         powerRankedHeroes = powerRanked,
                         recentlyAddedHeroes = recentlyAdded,
                         filteredHeroes = filtered,
+                        clashHeroes = clash,
                         error = null
                     )
                 }
@@ -142,6 +156,8 @@ class HomeViewModel(
             val matchesCategory = when (category) {
                 "Marvel" -> hero.publisher.contains("Marvel", ignoreCase = true)
                 "DC Comics" -> hero.publisher.contains("DC", ignoreCase = true)
+                "Indie" -> !hero.publisher.contains("Marvel", ignoreCase = true) && !hero.publisher.contains("DC", ignoreCase = true)
+                "Cosmic" -> hero.powerRating >= 90
                 "Heroes" -> hero.isGood
                 "Villains" -> hero.isBad
                 else -> true

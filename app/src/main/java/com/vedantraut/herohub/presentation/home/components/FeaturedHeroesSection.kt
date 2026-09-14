@@ -1,6 +1,9 @@
 package com.vedantraut.herohub.presentation.home.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,9 +15,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -25,15 +30,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.vedantraut.herohub.domain.model.Hero
 import com.vedantraut.herohub.ui.designsystem.token.HeroHubDimensions
 import com.vedantraut.herohub.ui.designsystem.token.HeroHubRadius
@@ -49,31 +56,65 @@ fun FeaturedHeroesSection(
     val configuration = LocalConfiguration.current
     val pagerHeight = when {
         configuration.screenWidthDp >= 840 -> 260.dp
-        configuration.screenWidthDp >= 600 -> 230.dp
-        else -> 210.dp
+        configuration.screenWidthDp >= 600 -> 240.dp
+        else -> 220.dp
     }
 
     val pagerState = rememberPagerState(pageCount = { heroes.size })
 
     HeroSection(
-        title = "✨ Featured Heroes",
-        subtitle = "Spotlight superheroes & legends",
+        title = "✨ Featured Spotlight",
+        subtitle = "Multiverse icons & fan-favorite champions",
         badgeText = "${pagerState.currentPage + 1}/${heroes.size}",
         modifier = modifier
     ) {
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = HeroHubDimensions.screenHorizontalPadding),
-            pageSpacing = HeroHubDimensions.space12,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(pagerHeight)
-        ) { page ->
-            val hero = heroes[page]
-            FeaturedHeroCard(
-                hero = hero,
-                onClick = { onHeroClick(hero) }
-            )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space8)
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                contentPadding = PaddingValues(horizontal = HeroHubDimensions.screenHorizontalPadding),
+                pageSpacing = HeroHubDimensions.space12,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(pagerHeight)
+            ) { page ->
+                val hero = heroes[page]
+                FeaturedHeroCard(
+                    hero = hero,
+                    onClick = { onHeroClick(hero) }
+                )
+            }
+
+            // Animated Capsule Dots Pager Indicator
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = HeroHubDimensions.space4),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(heroes.size) { iteration ->
+                    val isCurrent = pagerState.currentPage == iteration
+                    val width by animateDpAsState(
+                        targetValue = if (isCurrent) 22.dp else 6.dp,
+                        label = "indicatorWidth"
+                    )
+                    val color by animateColorAsState(
+                        targetValue = if (isCurrent) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.35f),
+                        label = "indicatorColor"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 3.dp)
+                            .height(6.dp)
+                            .width(width)
+                            .clip(CircleShape)
+                            .background(color)
+                    )
+                }
+            }
         }
     }
 }
@@ -83,6 +124,13 @@ private fun FeaturedHeroCard(
     hero: Hero,
     onClick: () -> Unit
 ) {
+    val publisherColor = when {
+        hero.publisher.contains("Marvel", ignoreCase = true) -> Color(0xFFE23636)
+        hero.publisher.contains("DC", ignoreCase = true) -> Color(0xFF0078F0)
+        hero.publisher.contains("Dark Horse", ignoreCase = true) -> Color(0xFFB91C1C)
+        else -> Color(0xFF8B5CF6)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -90,7 +138,7 @@ private fun FeaturedHeroCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(HeroHubRadius.extraLarge),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             HeroImage(
@@ -100,7 +148,7 @@ private fun FeaturedHeroCard(
                 shape = RoundedCornerShape(HeroHubRadius.extraLarge)
             )
 
-            // Scrim Overlay
+            // Cinematic Scrim Overlay
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -108,8 +156,8 @@ private fun FeaturedHeroCard(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.4f),
-                                Color.Black.copy(alpha = 0.92f)
+                                Color.Black.copy(alpha = 0.45f),
+                                Color.Black.copy(alpha = 0.94f)
                             )
                         )
                     )
@@ -122,18 +170,35 @@ private fun FeaturedHeroCard(
                     .padding(HeroHubDimensions.cardPadding),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Top Tags
+                // Top Badges
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PublisherTag(publisher = hero.publisher)
+                    Surface(
+                        shape = RoundedCornerShape(HeroHubRadius.small),
+                        color = publisherColor,
+                        modifier = Modifier.border(1.dp, Color.White.copy(alpha = 0.3f), RoundedCornerShape(HeroHubRadius.small))
+                    ) {
+                        Text(
+                            text = hero.publisher.uppercase(),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontSize = 9.sp,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+
                     HeroAlignmentTag(alignment = hero.displayAlignment)
                 }
 
-                // Bottom Hero Details
-                Column(modifier = Modifier.fillMaxWidth()) {
+                // Bottom Hero Details & Stat Pills
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
+                ) {
                     Text(
                         text = hero.name,
                         style = MaterialTheme.typography.titleLarge,
@@ -146,49 +211,89 @@ private fun FeaturedHeroCard(
                     if (hero.realName.isNotBlank() && hero.realName != hero.name) {
                         Text(
                             text = hero.realName,
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.8f),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(HeroHubDimensions.space8))
-
+                    // Stat Pills Row
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space8),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Default.Star,
-                                contentDescription = "Power Rating",
-                                tint = Color.White,
-                                modifier = Modifier.padding(end = HeroHubDimensions.space4)
-                            )
-                            Text(
-                                text = "Power ${hero.powerRating}/100",
-                                style = MaterialTheme.typography.labelMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        }
+                        StatMiniBadge(label = "STR", value = hero.strength, color = Color(0xFFEF4444))
+                        StatMiniBadge(label = "INT", value = hero.intelligence, color = Color(0xFF3B82F6))
+                        StatMiniBadge(label = "SPD", value = hero.speed, color = Color(0xFF10B981))
+                        StatMiniBadge(label = "PWR", value = hero.power, color = Color(0xFFF59E0B))
 
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        // Overall Power Badge
                         Surface(
-                            shape = RoundedCornerShape(HeroHubRadius.medium),
-                            color = Color.White.copy(alpha = 0.2f)
+                            shape = CircleShape,
+                            color = Color.White.copy(alpha = 0.2f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.4f))
                         ) {
-                            Text(
-                                text = "Inspect",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                modifier = Modifier.padding(horizontal = HeroHubDimensions.space8, vertical = HeroHubDimensions.space4)
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Star,
+                                    contentDescription = null,
+                                    tint = Color(0xFFFBBF24),
+                                    modifier = Modifier.size(12.dp)
+                                )
+                                Text(
+                                    text = "${hero.powerRating}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.White,
+                                    fontSize = 11.sp
+                                )
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun StatMiniBadge(
+    label: String,
+    value: Int,
+    color: Color
+) {
+    Surface(
+        shape = RoundedCornerShape(HeroHubRadius.small),
+        color = Color.Black.copy(alpha = 0.5f),
+        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.5f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(3.dp)
+        ) {
+            Text(
+                text = label,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+            Text(
+                text = "$value",
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }

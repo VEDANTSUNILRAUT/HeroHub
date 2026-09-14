@@ -43,7 +43,8 @@ fun HeroDetailBottomSheet(
     onClose: () -> Unit,
     modifier: Modifier = Modifier,
     isFavorite: Boolean = false,
-    onToggleFavorite: (() -> Unit)? = null
+    onToggleFavorite: (() -> Unit)? = null,
+    onNavigateToBattle: ((hero: Hero) -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -131,6 +132,24 @@ fun HeroDetailBottomSheet(
             ) {
                 Text(
                     text = if (isFavorite) "❤️ In Superhero Squad (Favorite)" else "🤍 Add to Superhero Squad",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        if (onNavigateToBattle != null) {
+            Spacer(modifier = Modifier.height(HeroHubDimensions.space8))
+            Button(
+                onClick = { onNavigateToBattle(hero) },
+                shape = RoundedCornerShape(HeroHubRadius.large),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "⚔️ Challenge in Versus Arena",
                     fontWeight = FontWeight.Bold
                 )
             }

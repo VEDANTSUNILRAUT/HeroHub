@@ -45,10 +45,8 @@ fun HeroCard(
     onToggleFavorite: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(HeroHubRadius.extraLarge))
-            .clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(HeroHubRadius.extraLarge),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -174,10 +172,8 @@ fun CompactHeroCard(
     onToggleFavorite: (() -> Unit)? = null
 ) {
     Card(
-        modifier = modifier
-            .width(136.dp)
-            .clip(RoundedCornerShape(HeroHubRadius.large))
-            .clickable(onClick = onClick),
+        onClick = onClick,
+        modifier = modifier.width(136.dp),
         shape = RoundedCornerShape(HeroHubRadius.large),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -264,14 +260,32 @@ fun RankedHeroCard(
     isFavorite: Boolean = false,
     onToggleFavorite: (() -> Unit)? = null
 ) {
+    val medalColor = when (rank) {
+        1 -> Color(0xFFF59E0B)
+        2 -> Color(0xFF94A3B8)
+        3 -> Color(0xFFD97706)
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val tierLabel = when {
+        hero.powerRating >= 95 -> "GOD TIER"
+        hero.powerRating >= 90 -> "COSMIC"
+        hero.powerRating >= 85 -> "ALPHA"
+        else -> "ELITE"
+    }
+
     Card(
+        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(HeroHubRadius.large))
-            .clickable(onClick = onClick),
+            .border(
+                width = if (rank <= 3) 1.5.dp else 0.5.dp,
+                color = if (rank <= 3) medalColor.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(HeroHubRadius.large)
+            ),
         shape = RoundedCornerShape(HeroHubRadius.large),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (rank <= 3) 3.dp else 1.dp)
     ) {
         Row(
             modifier = Modifier
@@ -280,23 +294,33 @@ fun RankedHeroCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space12)
         ) {
-            // Rank Number Badge
+            // Rank Badge with Medal or Number
             Surface(
                 shape = CircleShape,
-                color = if (rank <= 3) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(36.dp)
+                color = if (rank <= 3) medalColor.copy(alpha = 0.2f) else MaterialTheme.colorScheme.surface,
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.5.dp,
+                    color = medalColor
+                ),
+                modifier = Modifier.size(38.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
-                        text = "#$rank",
+                        text = when (rank) {
+                            1 -> "🥇"
+                            2 -> "🥈"
+                            3 -> "🥉"
+                            else -> "#$rank"
+                        },
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = if (rank <= 3) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                        color = if (rank <= 3) Color.White else MaterialTheme.colorScheme.onSurface,
+                        fontSize = if (rank <= 3) 14.sp else 12.sp
                     )
                 }
             }
 
-            // Hero Avatar
+            // Hero Avatar with subtle shape
             HeroImage(
                 imageUrl = hero.imageUrl,
                 contentDescription = hero.name,
@@ -304,16 +328,38 @@ fun RankedHeroCard(
                 shape = RoundedCornerShape(HeroHubRadius.medium)
             )
 
-            // Info
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = hero.name,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            // Info & Power Meter
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = hero.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Surface(
+                        shape = RoundedCornerShape(HeroHubRadius.small),
+                        color = medalColor.copy(alpha = 0.18f),
+                        border = androidx.compose.foundation.BorderStroke(0.5.dp, medalColor.copy(alpha = 0.5f))
+                    ) {
+                        Text(
+                            text = tierLabel,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Black,
+                            color = medalColor,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                        )
+                    }
+                }
+
                 Text(
                     text = hero.realName.ifBlank { hero.publisher },
                     style = MaterialTheme.typography.bodySmall,
@@ -321,9 +367,21 @@ fun RankedHeroCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                LinearProgressIndicator(
+                    progress = { (hero.powerRating / 100f).coerceIn(0f, 1f) },
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .height(4.dp)
+                        .clip(CircleShape),
+                    color = medalColor,
+                    trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
+                )
             }
 
-            // Power Rating & Alignment
+            // Power Rating & Heart
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
@@ -333,10 +391,10 @@ fun RankedHeroCard(
                     horizontalArrangement = Arrangement.spacedBy(HeroHubDimensions.space4)
                 ) {
                     Text(
-                        text = "⚡ ${hero.powerRating}",
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        text = "⚡${hero.powerRating}",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Black,
+                        color = medalColor
                     )
 
                     if (onToggleFavorite != null) {

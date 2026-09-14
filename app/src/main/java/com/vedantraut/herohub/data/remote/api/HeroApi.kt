@@ -1,5 +1,6 @@
 package com.vedantraut.herohub.data.remote.api
 
+import com.vedantraut.herohub.data.remote.dto.AkababHeroDto
 import com.vedantraut.herohub.data.remote.dto.HeroDto
 import com.vedantraut.herohub.data.remote.dto.HeroSearchResponseDto
 import retrofit2.http.GET
@@ -18,4 +19,7 @@ interface HeroApi {
         @Path("token") token: String,
         @Path("id") id: String
     ): HeroDto
+
+    @GET("https://fastly.jsdelivr.net/gh/akabab/superhero-api@0.3.0/api/all.json")
+    suspend fun getAllHeroesFromApi(): List<AkababHeroDto>
 }

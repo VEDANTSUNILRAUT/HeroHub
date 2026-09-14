@@ -5,4 +5,5 @@ import com.vedantraut.herohub.domain.model.Hero
 interface HeroRepository {
     suspend fun searchHeroes(name: String): List<Hero>
     suspend fun getHomeHeroes(): List<Hero>
+    suspend fun getAllHeroes(): List<Hero>
 }
